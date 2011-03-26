@@ -1,0 +1,153 @@
+#ifndef __GTKSMARTNOTEBOOK_H__
+#define __GTKSMARTNOTEBOOK_H__
+
+#include <gtk/gtk.h>
+
+G_BEGIN_DECLS
+
+
+#define GTK_TYPE_SMART_NOTEBOOK				(gtk_smart_notebook_get_type())
+#define GTK_SMART_NOTEBOOK(obj)				(G_TYPE_CHECK_INSTANCE_CAST((obj),\
+			GTK_TYPE_SMART_NOTEBOOK, GtkSmartNotebook))
+#define GTK_SMART_NOTEBOOK_CLASS(klass)		(G_TYPE_CHECK_CLASS_CAST((klass),\
+			GTK_TYPE_SMART_NOTEBOOK, GtkSmartNotebookClass))
+#define GTK_IS_SMART_NOTEBOOK(obj)			(G_TYPE_CHECK_INSTANCE_TYPE((obj),\
+			GTK_TYPE_SMART_NOTEBOOK))
+#define GTK_IS_SMART_NOTEBOOK_CLASS(klass)	(G_TYPE_CHECK_CLASS_TYPE((klass),\
+			GTK_TYPE_SMART_NOTEBOOK))
+#define GTK_SMART_NOTEBOOK_GET_CLASS(obj)	(G_TYPE_INSTANCE_GET_CLASS((obj),\
+			GTK_TYPE_SMART_NOTEBOOK, GtkSmartNotebookClass))
+
+typedef struct _GtkSmartNotebook			GtkSmartNotebook;
+typedef struct _GtkSmartNotebookClass		GtkSmartNotebookClass;
+typedef struct _GtkSmartNotebookPrivate		GtkSmartNotebookPrivate;
+
+struct _GtkSmartNotebook
+{
+	GtkNotebook parent;
+	/* add your public declarations here */
+
+	GtkSmartNotebookPrivate *priv;
+};
+
+struct _GtkSmartNotebookClass
+{
+	GtkNotebookClass parent_class;
+
+	gboolean (*tab_closing) (GtkSmartNotebook *smart_notebook,
+		const gchar *tab_name, gpointer user_data);
+
+	void (*tab_icon_clicked) (GtkSmartNotebook *smart_notebook,
+		const gchar *tab_name, gpointer user_data);
+
+	void (*tab_clicked) (GtkSmartNotebook *smart_notebook,
+		const gchar *tab_name, gpointer user_data);
+
+	void (*tab_attached) (GtkSmartNotebook *smart_notebook,
+		const gchar *tab_name, gpointer user_data);
+
+	void (*tab_detached) (GtkSmartNotebook *smart_notebook,
+		const gchar *tab_name, gpointer user_data);
+
+	void (*new_tab_clicked) GtkSmartNotebook *smart_notebook,
+		gpointer user_data);
+
+};
+
+
+GType		gtk_smart_notebook_get_type		(void);
+GtkWidget*	gtk_smart_notebook_new			(const gchar *notebook_name);
+
+/**
+ * gtk_smart_notebook_register_tab:
+ * @param child_name:	A unique name for this tab.
+ * @param label:		A widget (usually a label) to put in the tab.
+ * @param child:		The child widget for the tab.
+ * @param can_close:	Whether or not to put a #GTK_STOCK_CLOSE button
+ * 						to the right of the @label widget.
+ * @param icon:		A GtkImage icon to put to the left of @label.
+ *
+ * This is a replacement for the #gtk_notebook_append_page functon.
+ * Each tab must have it's own @child_name, which must be unique to not
+ * only this notebook, but also to any #GtkSmartNotebookGroup to which
+ * this notebook is to belong in.  The @label parameter can be any
+ * #GtkWidget that can be packed into a #GtkHBox.
+ *
+ * If @can_close is #TRUE, a small button with a #GTK_STOCK_CLOSE icon
+ * will be placed to the right of the @label widget.  When @can_close
+ * is #TRUE, the "tab-closing" signal will be emitted when the button
+ * is clicked giving subscribers the opportunity to re-act and/or
+ * cancel removing the page from the notebook.
+ *
+ * If @icon is not #NULL, it will be placed to the left of the @label
+ * in the tab's #GtkHBox.  When using an @icon, pressing a mouse button
+ * on it will emit "tab-icon-clicked" event which you can use to add a
+ * context menu on the icon, for example.
+ *
+ * When the tab is clicked any where outside the close button and @icon
+ * (if enabled), the notebook will emit a "tab-clicked" signal.
+ *
+ * Note that the tab*-clicked and tab-closing signals fire on mouse
+ * button press, not button release.
+ *
+ * Also note that you can still use #gtk_notebook_append_page if you
+ * just want to add an unregistered tab child as you normally would
+ * with a #GtkNotebook.
+ *
+ * @return #TRUE on success, #FALSE on any failure.
+ */
+gboolean	gtk_smart_notebook_register_tab(const gchar *child_name,
+	const gchar *label, GtkWidget *child, gboolean can_close, GtkImage *icon);
+
+
+/**
+ * gtk_smart_notebook_unregister_tab:
+ * @param child_name:	The unique name of the tab to unregister.
+ *
+ * This will remove any references of the tab from the tracking
+ * database, remove any of the widgets in the tab itself, and call
+ * #gtk_notebook_remove_page to remove the tab's child widget.  This
+ * will destroy the @label, @icon, and @child specified in
+ * #gtk_smart_notebook_register_tab function, unless you hold
+ * references to them yourself.
+ *
+ * @return #TRUE on success, #FALSE on any failure or if @child_name
+ * 			does not refer to tab in this notebook (ie. is not registed).
+ */
+gboolean	gtk_smart_notebook_unregister_tab(const gchar *child_name);
+
+
+gboolean	gtk_smart_notebook_store(const gchar *filename);
+gboolean	gtk_smart_notebook_load(const gchar *filename);
+
+GtkWidget	*gtk_smart_notebook_get_child(GtkSmartNotebook *smart_notebook);
+GtkWidget	*gtk_smart_notebook_get_label(GtkSmartNotebook *smart_notebook);
+GtkImage 	*gtk_smart_notebook_get_icon(GtkSmartNotebook *smart_notebook);
+GtkWidget *gtk_smart_notebook_get_close_button(GtkSmartNotebook *smart_notebook);
+
+void gtk_smart_notebook_set_child(GtkSmartNotebook *smart_notebook,
+	GtkWidget *child);
+void gtk_smart_notebook_set_label(GtkSmartNotebook *smart_notebook,
+	GtkWidget *label);
+void gtk_smart_notebook_set_icon(GtkSmartNotebook *smart_notebook,
+	GtkImage *icon);
+
+
+G_END_DECLS
+
+#endif /* __GTKSMARTNOTEBOOK_H__ */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

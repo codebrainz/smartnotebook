@@ -1,0 +1,57 @@
+#include "gtksmartnotebook.h"
+
+struct _GtkSmartNotebookPrivate
+{
+	GtkWidget	*tab_label;
+	GtkWidget	*tab_close_button;
+	GtkWidget	*tab_icon_box;
+	GtkImage	*tab_icon;
+	gchar 		*tab_name;
+
+	gboolean 	*has_new_tab_button;
+	gboolean	*has_tab_menu;
+};
+
+static void gtk_smart_notebook_finalize			(GObject *object);
+
+G_DEFINE_TYPE(GtkSmartNotebook, gtk_smart_notebook, GTK_TYPE_NOTEBOOK)
+
+
+static void gtk_smart_notebook_class_init(GtkSmartNotebookClass *klass)
+{
+	GObjectClass *g_object_class;
+
+	g_object_class = G_OBJECT_CLASS(klass);
+
+	g_object_class->finalize = gtk_smart_notebook_finalize;
+
+	g_type_class_add_private((gpointer)klass, sizeof(GtkSmartNotebookPrivate));
+}
+
+
+static void gtk_smart_notebook_finalize(GObject *object)
+{
+	GtkSmartNotebook *self;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(GTK_IS_SMART_NOTEBOOK(object));
+
+	self = GTK_SMART_NOTEBOOK(object);
+
+	G_OBJECT_CLASS(gtk_smart_notebook_parent_class)->finalize(object);
+}
+
+
+static void gtk_smart_notebook_init(GtkSmartNotebook *self)
+{
+	self->priv = G_TYPE_INSTANCE_GET_PRIVATE(self,
+		GTK_TYPE_SMART_NOTEBOOK, GtkSmartNotebookPrivate);
+
+}
+
+
+GtkWidget *gtk_smart_notebook_new(void)
+{
+	return g_object_new(GTK_TYPE_SMART_NOTEBOOK, NULL);
+}
+
